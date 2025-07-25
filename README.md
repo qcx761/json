@@ -332,19 +332,3 @@ json::parse(str);  // 从字符串解析
 j.at("key");       // 安全访问
 j.contains("key"); // 判断键是否存在
 ```
-
-#### 16.2 示例项目
-
-* [https://github.com/nlohmann/json](https://github.com/nlohmann/json)
-* [https://github.com/miloyip/rapidjson](https://github.com/miloyip/rapidjson)
-
-#### 16.3 常见问题 FAQ
-
-* Q: 如何支持中文？
-  A: dump 支持 UTF-8 编码，确保控制台支持即可。
-* Q: 是否支持流式解析？
-  A: 支持输入输出流对象（fstream, istringstream 等）。
-
----
-
-以上内容涵盖了从基础到进阶的 C++ JSON 使用全流程。
