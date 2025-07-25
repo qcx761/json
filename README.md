@@ -1,4 +1,4 @@
-## C++ 使用 JSON 的超详尽教程（基于 nlohmann/json）
+## C++ 使用 JSON 的超教程（基于 nlohmann/json）
 
 ---
 
