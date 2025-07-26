@@ -1,71 +1,244 @@
-# C#: 输入（Console.ReadLine()）和输出（Console.WriteLine()）
+# 1 序列化（Serialization）
 
-## 目录
-
-- 起点：编程的基本需求  
-- 推导：C# 如何处理输入输出？  
-- 什么是 C# 中的输入输出？  
-- 输出：`Console.WriteLine()` 和 `Console.Write()`  
-- 输入：`Console.ReadLine()`  
-- 为什么 C# 这样设计？  
-- 对比类比  
-- 补充：输入输出的局限与扩展  
+**序列化**指将对象状态转换为可存储或传输形式的过程，对应的反向操作称为 **反序列化（Unserialization）**。其主要用于跨平台、跨语言模块之间的数据交互，其本质是为了数据传输。
 
 ---
 
-## 起点：编程的基本需求
+## 1.1 如何实现序列化
 
-程序需要与外部交互：任何程序都不是孤立运行的，它必须接收外部数据（**输入**）并产生结果或反馈（**输出**）。
+- **原始数据**：可包括基础数据类型和复合数据类型。
+- **流程**：
+  ```
+  发送端：
+    原始数据 → 序列化（编码） → 特殊格式字符串
+    发送该字符串
 
-- **输入的本质**：输入是从用户或设备（如键盘）获取信息的过程，程序需要一种机制将这些信息捕获并处理。
-- **输出的本质**：输出是将程序处理后的结果或消息传递给用户或设备（如屏幕）显示的过程。
-- **语言的抽象层次**：C# 是一种高层次语言，它通过封装底层细节，提供简洁的工具来完成输入输出，而不像 C 或 C++ 那样需要更多手动控制。
-
-基于这些事实，我们推导 C# 如何实现输入输出。
-
----
-
-## 推导：C# 如何处理输入输出？
-
-### 事实 1：程序需要标准接口
-
-程序需要一个固定的“窗口”来接收输入和发送输出。就像你有一个固定的门（输入）和窗户（输出）来与外界沟通。
-
-在 C# 中，这个“窗口”被抽象为 `Console` 类，它是 C# 标准库（.NET Framework 或 .NET Core）提供的一个工具，专门处理控制台（通常是命令行窗口）的输入输出。
-
-### 事实 2：输入和输出是数据流
-
-- 输入是从外部（用户）到程序的数据流，比如用户敲键盘输入文字。
-- 输出是从程序到外部的数据流，比如程序在屏幕上显示文字。
-
-C# 需要一种方式，将这些数据流标准化、简化，让程序员不用关心底层（如操作系统如何处理键盘、屏幕）。
-
-### 事实 3：C# 使用对象和方法
-
-C# 是面向对象的语言，它通过对象（`Console`）和方法（`WriteLine`、`ReadLine`）来封装输入输出逻辑。  
-想象 `Console` 是一个智能设备，里面有按钮（方法），你按下按钮就能完成特定任务。
+  接收端：
+    接收特殊格式字符串 → 反序列化（解码） → 恢复原始数据
+    处理原始数据
+  ```
+- **目的**：实现跨平台/跨终端分发，确保各端能正确解析，如网络传输、磁盘复制等。
+- **注意**：序列化是为了解决数据传输，不是为了加密。
 
 ---
 
-## 什么是 C# 中的输入输出？
+## 1.2 为什么需要序列化？
 
-用较为专业的但易懂的语言，C# 的输入输出是通过 `Console` 类提供的静态方法实现的，主要包括：
+在网络传输中常见问题：
+
+- **平台差异**：例如 32 位 vs 64 位机器上的结构体在内存中的对齐不同。
+- **字节序问题**：不同系统字节顺序不一致，字符类型（占 1 字节）除外。
+- **语言差异**：
+  - C 的 `char` 占 1 字节；
+  - Java 的 `char` 占 2 字节；
+- **对齐问题**：结构体字节对齐导致可移植性差。
+
+若直接将结构体通过 `send()` 发出，接收端可能无法正确解析，因此必须用序列化转换为稳定格式。
 
 ---
 
-## 输出：`Console.WriteLine()` 和 `Console.Write()`
+## 1.3 常用序列化方式
 
-- **功能**：将字符串或变量的值输出到控制台。
-- **原理**：
-  - `Console.WriteLine()` 调用底层系统函数，将数据发送到标准输出流（通常是屏幕），并在末尾自动添加换行符。
-  - `Console.Write()` 类似，但不自动换行。
+- XML（Extensible Markup Language）
+- JSON（JavaScript Object Notation）
+- Protocol Buffer（Protobuf）
+- ASN.1（Abstract Syntax Notation One）
+- Boost 序列化库（C++）
 
-### 难点通俗解释
+以下重点讨论 **JSON** 与 **Protobuf**。
 
-想象你有一个信使（`Console`），你给信使一个消息（字符串或变量），说“去屏幕上写这个”。  
-`WriteLine` 还会在写完后说“新的一行开始”。
+---
 
-### 示例：
+# 2 JSON
 
-```csharp
-Console.WriteLine("结果是: {0}", 42); // 输出：结果是: 42
+- 起源于 JavaScript 的“关联数组”，用键值对描述对象。
+- **优点**：
+  - 与 XML 相比更简洁，序列化后体积约为 XML 的一半；
+  - 可读性强；
+  - 解析速度快；
+  - 原生支持 Web 浏览器，是 Ajax 的事实标准协议。
+
+## 2.1 JSON 数据结构
+
+- **数组**：类似于 C++ 数组，但元素类型可混合。支持如下类型：
+  - `int`, `double`, `float`, `bool`, `string`, `char*`, 嵌套 JSON 数组/对象  
+  示例：
+  ```json
+  [12, 13.45, "hello, world", true, false, [1,2,"aa"], {"a":"b"}]
+  ```
+- **对象**：使用 `{}` 表示，由键（字符串）与值（任意有效类型）组成，多个键值对用逗号分隔。
+
+## 2.2 使用 `jsoncpp` 类库
+
+### 构建 JSON 并写入磁盘
+
+示例代码：
+```cpp
+#include <json/json.h>
+#include <fstream>
+#include <iostream>
+
+int main() {
+    Json::Value root;
+    root["name"] = "Alice";
+    root["age"] = 30;
+    root["is_student"] = false;
+
+    Json::Value courses(Json::arrayValue);
+    courses.append("Mathematics");
+    courses.append("Physics");
+    courses.append("Computer Science");
+    root["courses"] = courses;
+
+    Json::Value address;
+    address["street"] = "123 Main St";
+    address["city"] = "Anytown";
+    address["zip"] = "12345";
+    root["address"] = address;
+
+    std::string jsonString = root.toStyledString();
+
+    std::ofstream file("data.json");
+    file << jsonString;
+    file.close();
+
+    std::cout << "JSON data has been written to data.json\n";
+    return 0;
+}
+```
+
+### 读取 JSON 文件到内存并解析
+
+示例：
+```cpp
+#include <json/json.h>
+#include <fstream>
+
+class Server {
+public:
+    Server(const std::string& jsonFile) {
+        std::ifstream ifs(jsonFile);
+        Json::Reader r;
+        Json::Value val;
+        r.parse(ifs, val);
+        m_port = val["port"].asInt();
+    }
+private:
+    int m_port;
+};
+```
+
+---
+
+# 3 Protobuf（Protocol Buffer）
+
+- Google 开发的跨语言结构化数据序列化标准，适用于 RPC 和持久化数据交换。
+- 优点：体积小、效率高，由 `.proto` 文件定义结构、自动生成代码支持 C++, Java, C#, Python 等语言。
+
+## 3.1 数据组织示例
+
+定义 `.proto` 文件：
+```proto
+syntax = "proto3";
+message Person {
+  int32 id = 1;
+  string name = 2;
+  string sex = 3;
+  int32 age = 4;
+}
+```
+
+通过：
+```bash
+protoc Person.proto --cpp_out=./
+```
+生成对应的 C++ 类。
+
+## 3.2 使用场景示例
+
+```cpp
+#include "Person.pb.h"
+#include <iostream>
+
+int main() {
+    Person p;
+    p.set_id(1);
+    p.set_name("李四");
+    p.set_sex("man");
+    p.set_age(18);
+
+    std::string output;
+    p.SerializeToString(&output);
+    std::cout << "序列化后: " << output << std::endl;
+
+    Person pp;
+    pp.ParseFromString(output);
+    std::cout << "名字: " << pp.name() << ", 年龄: " << pp.age()
+              << ", 性别: " << pp.sex() << ", id: " << pp.id() << std::endl;
+    return 0;
+}
+```
+
+示例封装类：
+```cpp
+class My_Protobuf {
+    Person m_person;
+    std::string m_enstr;
+public:
+    My_Protobuf(const Info* info) {
+        m_person.set_id(info->id);
+        m_person.set_name(info->name);
+        m_person.set_sex(info->sex);
+        m_person.set_age(info->age);
+    }
+    My_Protobuf(const std::string& str) : m_enstr(str) {}
+    std::string encodeMsg() {
+        std::string out;
+        m_person.SerializeToString(&out);
+        return out;
+    }
+    Person* decodeMsg() {
+        Person* p = new Person();
+        p->ParseFromString(m_enstr);
+        return p;
+    }
+};
+```
+
+## 3.3 编码原理简述
+
+- **Varints 编码**：可变长度整型，优点是数字越小占字节越少，最高位作标志位。
+- **ZigZag 编码**：将负整数映射为无符号正数，从而减少负数序列化长度。
+
+---
+
+# 4 JSON vs Protobuf 对比
+
+## 性能与效率对比
+
+- **Protobuf** 通常序列化速度快、体积小。对数字数据对象，可减少 60–90% 空间，解码速度优于 JSON（尤其对复杂/大数据结构）。
+- **JSON** 在小型、文本密集型场景下解析性能好，但整体较慢且不紧凑。
+
+## 易用性与可读性
+
+- JSON：无需定义 schema，文本可读、调试方便；
+- Protobuf：需要 `.proto` 文件编译，二进制不可读，但支持严格结构验证。
+
+## 可演进性与兼容性
+
+- JSON：动态、松散结构，缺少版本控制机制；
+- Protobuf：支持版本演进、忽略未知字段、内置字段弃用机制。
+
+## 适用场景对比
+
+| 场景类型                  | 推荐使用         |
+|---------------------------|------------------|
+| Web 公共 API、配置文件、日志 | JSON             |
+| 多语言、高性能、低带宽内部 RPC | Protobuf         |
+
+---
+
+# ✅ 总结
+
+- **JSON**：格式简单、跨语言、可读性强，适用于快速开发、调试、Web API；
+- **Protobuf**：二进制格式、体积小、性能高、支持 schema 演进，非常适合对性能和兼容性要求高的系统。
