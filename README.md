@@ -163,6 +163,60 @@ private:
 
 ---
 
+## 2.4 使用 nlohmann/json 类库（推荐）
+
+### 构建 JSON 并写入磁盘
+示例代码：
+```cpp
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <iostream>
+
+using json = nlohmann::json;
+
+int main() {
+    json j;
+    j["name"] = "Alice";
+    j["age"] = 30;
+    j["is_student"] = false;
+    j["courses"] = {"Mathematics", "Physics", "Computer Science"};
+    j["address"] = {
+        {"street", "123 Main St"},
+        {"city", "Anytown"},
+        {"zip", "12345"}
+    };
+
+    std::ofstream file("data_nlohmann.json");
+    file << j.dump(4);  // 美化输出（4 表示缩进）
+    file.close();
+
+    std::cout << "JSON written to data_nlohmann.json\n";
+    return 0;
+}
+```
+
+### 读取 JSON 文件并解析
+示例代码：
+```cpp
+#include <nlohmann/json.hpp>
+#include <fstream>
+
+using json = nlohmann::json;
+
+class Server {
+public:
+    Server(const std::string& jsonFile) {
+        std::ifstream ifs(jsonFile);
+        json j;
+        ifs >> j;
+        m_port = j["port"];
+    }
+private:
+    int m_port;
+};
+
+```
+
 
 ## 对比总结：jsoncpp vs nlohmann/json
 
