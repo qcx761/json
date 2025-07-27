@@ -96,8 +96,12 @@
   - `int`, `double`, `float`, `bool`, `string`, `char*`, 嵌套 JSON 数组/对象  
   ```json
 [
+  42,
+  "hello",
+  true,
+  null,
   {"id": 1, "name": "Alice"},
-  {"id": 2, "name": "Bob"}
+  [1, 2, 3]
 ]
 - **对象**：使用 `{}` 表示，由键（字符串）与值（任意有效类型）组成，多个键值对用逗号分隔。
   ```json
