@@ -94,25 +94,19 @@
 - **空值**：表示空数据，即 null
 - **数组**：类似于 C++ 数组，但元素类型可混合。支持如下类型：
   - `int`, `double`, `float`, `bool`, `string`, `char*`, 嵌套 JSON 数组/对象  
-  示例：
-  ```json对象
+  ```json
 [
   {"id": 1, "name": "Alice"},
   {"id": 2, "name": "Bob"}
 ]
-  ```
 - **对象**：使用 `{}` 表示，由键（字符串）与值（任意有效类型）组成，多个键值对用逗号分隔。
-  示例：
-  ```json对象
+  ```json
 {
   "id": 1,
   "name": "Alice",
   "age": 30,
   "isStudent": false
 }
-
-  ```
-
 
 ## 2.3 使用 `jsoncpp` 类库
 
