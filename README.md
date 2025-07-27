@@ -128,7 +128,7 @@ int main() {
     Json::Value jsonValue;
     jsonValue["name"] = "Alice";
     jsonValue["age"] = 18;
-    jsonValue["city"] = "123 city";
+    jsonValue["city"] = "New York";
 
     // 将JSON对象转换为字符串
     Json::StreamWriterBuilder writer;
@@ -141,13 +141,15 @@ int main() {
     std::istringstream jsonStringStream(jsonString);
     Json::parseFromStream(reader, jsonStringStream, &parsedJson, nullptr);
 
+
     // 从JSON对象中获取数据
     std::string name = parsedJson["name"].asString();
+    // Json::Value value = parsedJson["name"];
+    // std::string name = value.asString();
     int age = parsedJson["age"].asInt();
     std::string city = parsedJson["city"].asString();
 
     // 打印解析后的数据
-    std::cout << "Parsed JSON:" << std::endl;
     std::cout << "Name: " << name << std::endl;
     std::cout << "Age: " << age << std::endl;
     std::cout << "City: " << city << std::endl;
@@ -157,7 +159,17 @@ int main() {
 
 ```
 
----
+输出：
+```cpp
+JSON to string: {
+        "age" : 18,
+        "city" : "New York",
+        "name" : "Alice"
+}
+Name: Alice
+Age: 18
+City: New York
+```
 
 ## 2.4 使用 nlohmann/json 类库
 
@@ -182,8 +194,11 @@ int main() {
 
     // 从JSON对象中获取数据
     std::string name = parsedJson["name"].get<std::string>();
+    // std::string name = parsedJson.value("name", "unknown");
     int age = parsedJson["age"].get<int>();
+    // int age = parsedJson.value("age", 0);
     std::string city = parsedJson["city"].get<std::string>();
+    // bool isStudent = parsedJson.value("is_student", false);
 
     // 打印解析后的数据
     std::cout << "Name: " << name << std::endl;
@@ -193,6 +208,7 @@ int main() {
     return 0;
 }
 ```
+
 输出：
 ```cpp
 JSON to string: {"age":18,"city":"New York","name":"Alice"}
@@ -201,18 +217,19 @@ Age: 18
 City: New York
 ```
 
+---
 
 ## 对比总结：jsoncpp vs nlohmann/json
-
 
 | 比较项         | jsoncpp                  | nlohmann/json                 |
 |----------------|--------------------------|-------------------------------|
 | 是否 Header-only |  需要编译安装           |  只需一个头文件              |
 | 语法风格       | C++98 风格，显式类型转换多 | C++11/14 风格，结构直观简洁     |
-| 写文件方式     | `.toStyledString()` 手动写入 | `.dump()` 直接美化输出          |
-| 读文件方式     | Reader + `.asXXX()` 类型转换 | `>>` 流操作符 + 自动类型推断    |
+| 序列化方式     | `.toStyledString()` 手动写入 | `.dump()` 直接美化输出          |
+| 反序列化方式     | Reader + `.asXXX()` 类型转换 | `>>` 流操作符 + 自动类型推断    |
 | STL 容器支持   |  手动构造数组、对象      |  直接支持 `vector`、`map` 等 |
-| 适合新项目     |  不推荐，语法较旧        |  推荐，语法现代、开发效率高    |
+
+---
 
 
 # 三 Protobuf（Protocol Buffer）
