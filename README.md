@@ -114,121 +114,93 @@
   "isStudent": false
 }
 ```
-## 2.3 使用 `jsoncpp` 类库
 
-### 构建 JSON 并写入磁盘
+
+## 2.3 使用 `jsoncpp` 类库
 
 示例代码：
 ```cpp
-#include <json/json.h>
-#include <fstream>
 #include <iostream>
+#include <json/json.h>
 
 int main() {
-    Json::Value root;
-    root["name"] = "Alice";
-    root["age"] = 30;
-    root["is_student"] = false;
+    // 创建JSON对象
+    Json::Value jsonValue;
+    jsonValue["name"] = "Alice";
+    jsonValue["age"] = 18;
+    jsonValue["city"] = "123 city";
 
-    Json::Value courses(Json::arrayValue);
-    courses.append("Mathematics");
-    courses.append("Physics");
-    courses.append("Computer Science");
-    root["courses"] = courses;
+    // 将JSON对象转换为字符串
+    Json::StreamWriterBuilder writer;
+    std::string jsonString = Json::writeString(writer, jsonValue);
+    std::cout << "JSON to string: " << jsonString << std::endl;
 
-    Json::Value address;
-    address["street"] = "123 Main St";
-    address["city"] = "Anytown";
-    address["zip"] = "12345";
-    root["address"] = address;
+    // 将字符串转换为JSON对象
+    Json::CharReaderBuilder reader;
+    Json::Value parsedJson;
+    std::istringstream jsonStringStream(jsonString);
+    Json::parseFromStream(reader, jsonStringStream, &parsedJson, nullptr);
 
-    std::string jsonString = root.toStyledString();
+    // 从JSON对象中获取数据
+    std::string name = parsedJson["name"].asString();
+    int age = parsedJson["age"].asInt();
+    std::string city = parsedJson["city"].asString();
 
-    std::ofstream file("data.json");
-    file << jsonString;
-    file.close();
+    // 打印解析后的数据
+    std::cout << "Parsed JSON:" << std::endl;
+    std::cout << "Name: " << name << std::endl;
+    std::cout << "Age: " << age << std::endl;
+    std::cout << "City: " << city << std::endl;
 
-    std::cout << "JSON data has been written to data.json\n";
     return 0;
 }
-```
 
-### 读取 JSON 文件到内存并解析
-
-示例：
-```cpp
-#include <json/json.h>
-#include <fstream>
-
-class Server {
-public:
-    Server(const std::string& jsonFile) {
-        std::ifstream ifs(jsonFile);
-        Json::Reader r;
-        Json::Value val;
-        r.parse(ifs, val);
-        m_port = val["port"].asInt();
-    }
-private:
-    int m_port;
-};
 ```
 
 ---
 
-## 2.4 使用 nlohmann/json 类库（推荐）
+## 2.4 使用 nlohmann/json 类库
 
-### 构建 JSON 并写入磁盘
 示例代码：
 ```cpp
-#include <nlohmann/json.hpp>
-#include <fstream>
 #include <iostream>
-
-using json = nlohmann::json;
+#include <nlohmann/json.hpp>
 
 int main() {
-    json j;
-    j["name"] = "Alice";
-    j["age"] = 30;
-    j["is_student"] = false;
-    j["courses"] = {"Mathematics", "Physics", "Computer Science"};
-    j["address"] = {
-        {"street", "123 Main St"},
-        {"city", "Anytown"},
-        {"zip", "12345"}
-    };
+    // 创建JSON对象
+    nlohmann::json jsonValue;
+    jsonValue["name"] = "Alice";
+    jsonValue["age"] = 18;
+    jsonValue["city"] = "New York";
 
-    std::ofstream file("data_nlohmann.json");
-    file << j.dump(4);  // 美化输出（4 表示缩进）
-    file.close();
+    // 将JSON对象转换为字符串
+    std::string jsonString = jsonValue.dump();
+    std::cout << "JSON to string: " << jsonString << std::endl;
 
-    std::cout << "JSON written to data_nlohmann.json\n";
+    // 将字符串转换为JSON对象
+    nlohmann::json parsedJson = nlohmann::json::parse(jsonString);
+
+    // 从JSON对象中获取数据
+    std::string name = parsedJson["name"].get<std::string>();
+    int age = parsedJson["age"].get<int>();
+    std::string city = parsedJson["city"].get<std::string>();
+
+    // 打印解析后的数据
+    std::cout << "Name: " << name << std::endl;
+    std::cout << "Age: " << age << std::endl;
+    std::cout << "City: " << city << std::endl;
+
     return 0;
 }
 ```
-
-### 读取 JSON 文件并解析
-示例代码：
+输出：
 ```cpp
-#include <nlohmann/json.hpp>
-#include <fstream>
-
-using json = nlohmann::json;
-
-class Server {
-public:
-    Server(const std::string& jsonFile) {
-        std::ifstream ifs(jsonFile);
-        json j;
-        ifs >> j;
-        m_port = j["port"];
-    }
-private:
-    int m_port;
-};
-
+JSON to string: {"age":18,"city":"New York","name":"Alice"}
+Name: Alice
+Age: 18
+City: New York
 ```
+
 
 ## 对比总结：jsoncpp vs nlohmann/json
 
