@@ -58,11 +58,12 @@
 
 ## 1.4 常用序列化方式
 
-- XML（Extensible Markup Language）
-- JSON（JavaScript Object Notation）
-- Protocol Buffer（Protobuf）
-- ASN.1（Abstract Syntax Notation One）
-- Boost 序列化库（C++）
+| 序列化方式       | 格式  | 可读性 | 体积 | 解析速度 | 支持语言 |
+| ----------- | --- | --- | -- | ---- | ---- |
+| JSON        | 文本  | 高   | 中  | 中    | 广泛   |
+| XML         | 文本  | 中   | 大  | 慢    | 广泛   |
+| Protobuf    | 二进制 | 低   | 小  | 快    | 广泛   |
+
 
 ---
 ##  二 JSON
@@ -146,12 +147,7 @@ std::cout << "JSON to string: " << jsonString << std::endl;
 Json::CharReaderBuilder reader;
 Json::Value parsedJson;
 std::istringstream jsonStringStream(jsonString);
-std::string errs;
-bool ok = Json::parseFromStream(reader, jsonStringStream, &parsedJson, &errs);
-if (!ok) {
-    std::cerr << "Failed to parse JSON: " << errs << std::endl;
-    return;
-}
+Json::parseFromStream(reader, iss, &root, nullptr);
 
 std::string name = parsedJson["name"].asString();
 int age = parsedJson["age"].asInt();
@@ -201,12 +197,11 @@ nlohmann::json parsedJson = nlohmann::json::parse(jsonString);
 std::string name = parsedJson["name"].get<std::string>();
 int age = parsedJson["age"].get<int>();
 std::string city = parsedJson["city"].get<std::string>();
-// std::string name = parsedJson.value("name", "默认姓名");
+// std::string name = parsedJson.value("name", "abc");
 // int age = parsedJson.value("age", 0);
-// std::string city = parsedJson.value("city", "默认城市");
+// std::string city = parsedJson.value("city", "123");
 
 ```
-
 
 输出：
 ```cpp
@@ -218,22 +213,10 @@ City: New York
 
 ---
 
-## 对比总结：jsoncpp vs nlohmann/json
-
-| 比较项         | jsoncpp                  | nlohmann/json                 |
-|----------------|--------------------------|-------------------------------|
-| 是否 Header-only |  需要编译安装           |  只需一个头文件              |
-| 语法风格       | C++98 风格，显式类型转换多 | C++11/14 风格，结构直观简洁     |
-| 序列化方式     | `.toStyledString()` 手动写入 | `.dump()` 直接美化输出          |
-| 反序列化方式     | Reader + `.asXXX()` 类型转换 | `>>` 流操作符 + 自动类型推断    |
-| STL 容器支持   |  手动构造数组、对象      |  直接支持 `vector`、`map` 等 |
-
----
-
 
 # 三 Protobuf（Protocol Buffer）
 
-- Google 开发的跨语言结构化数据序列化标准，适用于 RPC 和持久化数据交换。
+- Google 开发的跨语言结构化数据序列化标准，适用于持久化数据交换。
 - 优点：体积小、效率高，由 `.proto` 文件定义结构、自动生成代码支持 C++, Java, C#, Python 等语言。
 - **优点**：
   - 体积小、传输快
@@ -242,16 +225,16 @@ City: New York
     - 生成语言原生类型代码，支持结构验证和字段兼容性控制。
   - 跨语言支持
     - 官方支持 C++, Java, Python, Go 等多种语言，方便系统集成。
-  - 可维护性好
-    - 内置字段编号机制，支持字段的新增、弃用、向前/向后兼容。
 
 ## 3.1 数据组织示例
 
 定义 `person.proto` 文件：
 ```proto
+// 语法版本声明，表示你当前使用的是 proto3 语法规范
 syntax = "proto3";
+// 数据结构声明
 message Person {
-  int32 id = 1;
+  int64 id = 1; // 后面的数字是字段编号，不要求按顺序
   string name = 2;
   string sex = 3;
   int32 age = 4;
@@ -266,8 +249,8 @@ protoc Person.proto --cpp_out=./
 
 | 文件名              | 作用                                                                       |
 | ---------------- | ------------------------------------------------------------------------ |
-| **person.pb.h**  | 头文件，声明了 `.proto` 文件中定义的消息（message）对应的 C++ 类和相关方法。包含类成员函数、访问器（get/set）声明。 |
 | **person.pb.cc** | 源文件，包含这些 C++ 类的具体实现，包括序列化、反序列化、拷贝、比较等逻辑。                                 |
+| **person.pb.h**  | 头文件，声明了 `.proto` 文件中定义的消息（message）对应的 C++ 类和相关方法。包含类成员函数、访问器（get/set）声明。 |
 
 
 ## 3.2 使用场景示例
@@ -298,13 +281,6 @@ int main() {
 ```cpp
 g++ main.cpp person.pb.cc -lprotobuf -o myapp
 ```
-
-输出
-```cpp
-序列化后:李四man 
-名字: 李四, 年龄: 18, 性别: man, id: 1
-```
-
 
 示例封装类：
 ```cpp
@@ -384,6 +360,5 @@ public:
 | 使用流程 | 需要编译 `.proto` 文件生成代码，才能在程序里构造和解析     | 直接用库提供的 API 创建和解析 JSON 数据 |
 | 数据格式 | 二进制，体积小，解析快，适合高效传输和存储                | 文本格式，人类可读，调试方便            |
 | 可维护性 | 强类型，结构固定，支持版本演进                      | 灵活但缺少严格类型，容易出现字段名错误       |
-| 适用场景 | 性能敏感、跨语言高效通信、结构化数据交换                 | 配置文件、日志、Web接口、快速开发        |
 
 ---

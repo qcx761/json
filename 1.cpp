@@ -28,3 +28,26 @@ int main() {
 
     return 0;
 }
+
+#include <nlohmann/json.hpp>
+#include <iostream>
+#include <string>
+
+int main() {
+    // 构造 JSON 数组
+    nlohmann::json arr = {"Alice", "Bob", "Charlie"};
+
+    // 序列化为字符串
+    std::string jsonStr = arr.dump();  // 无缩进
+    std::cout << "序列化后的 JSON 字符串:\n" << jsonStr << std::endl;
+
+    // 模拟传输：解析字符串回 JSON
+    nlohmann::json parsed = nlohmann::json::parse(jsonStr);
+
+    std::cout << "反序列化后的数组元素:\n";
+    for (const auto& item : parsed) {
+        std::cout << item << std::endl;
+    }
+
+    return 0;
+}
