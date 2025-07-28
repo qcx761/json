@@ -115,48 +115,47 @@
 }
 ```
 
-
 ## 2.3 使用 `jsoncpp` 类库
 
-示例代码：
+`jsoncpp` 是一个经典的 C++ JSON 库，支持 JSON 的创建、序列化和反序列化。它不是 header-only，需要编译安装。
+
+### 2.3.1 序列化（对象转字符串）
+
+- 通过 `Json::Value` 创建 JSON 对象，支持键值对赋值。
+- 使用 `Json::StreamWriterBuilder` 生成 Writer，将 JSON 对象转换成字符串。
+
+示例：
 ```cpp
-#include <iostream>
-#include <json/json.h>
+Json::Value jsonValue;
+jsonValue["name"] = "Alice";
+jsonValue["age"] = 18;
+jsonValue["city"] = "New York";
 
-int main() {
-    // 创建JSON对象
-    Json::Value jsonValue;
-    jsonValue["name"] = "Alice";
-    jsonValue["age"] = 18;
-    jsonValue["city"] = "New York";
+Json::StreamWriterBuilder writer;
+std::string jsonString = Json::writeString(writer, jsonValue);
+std::cout << "JSON to string: " << jsonString << std::endl;
+```
 
-    // 将JSON对象转换为字符串
-    Json::StreamWriterBuilder writer;
-    std::string jsonString = Json::writeString(writer, jsonValue);
-    std::cout << "JSON to string: " << jsonString << std::endl;
+### 2.3.1 反序列化（字符串转对象）
 
-    // 将字符串转换为JSON对象
-    Json::CharReaderBuilder reader;
-    Json::Value parsedJson;
-    std::istringstream jsonStringStream(jsonString);
-    Json::parseFromStream(reader, jsonStringStream, &parsedJson, nullptr);
+- 使用 Json::CharReaderBuilder 创建 Reader，将 JSON 字符串解析成 Json::Value 对象。
+- 支持 .asString()、.asInt() 等方法获取具体数据。
 
-
-    // 从JSON对象中获取数据
-    std::string name = parsedJson["name"].asString();
-    // Json::Value value = parsedJson["name"];
-    // std::string name = value.asString();
-    int age = parsedJson["age"].asInt();
-    std::string city = parsedJson["city"].asString();
-
-    // 打印解析后的数据
-    std::cout << "Name: " << name << std::endl;
-    std::cout << "Age: " << age << std::endl;
-    std::cout << "City: " << city << std::endl;
-
-    return 0;
+示例：
+```cpp
+Json::CharReaderBuilder reader;
+Json::Value parsedJson;
+std::istringstream jsonStringStream(jsonString);
+std::string errs;
+bool ok = Json::parseFromStream(reader, jsonStringStream, &parsedJson, &errs);
+if (!ok) {
+    std::cerr << "Failed to parse JSON: " << errs << std::endl;
+    return;
 }
 
+std::string name = parsedJson["name"].asString();
+int age = parsedJson["age"].asInt();
+std::string city = parsedJson["city"].asString();
 ```
 
 输出：
@@ -173,41 +172,37 @@ City: New York
 
 ## 2.4 使用 nlohmann/json 类库
 
+nlohmann/json 是现代 C++ JSON 库，header-only，依赖 C++11 及以上，语法简洁，易用。
+
+### 2.4.1 序列化（对象转字符串）
+
+- 通过 nlohmann::json 类型创建 JSON 对象，支持直接赋值。
+- 调用 .dump() 方法将 JSON 对象转换为字符串。
+
 示例代码：
 ```cpp
-#include <iostream>
-#include <nlohmann/json.hpp>
+nlohmann::json jsonValue;
+jsonValue["name"] = "Alice";
+jsonValue["age"] = 18;
+jsonValue["city"] = "New York";
 
-int main() {
-    // 创建JSON对象
-    nlohmann::json jsonValue;
-    jsonValue["name"] = "Alice";
-    jsonValue["age"] = 18;
-    jsonValue["city"] = "New York";
-
-    // 将JSON对象转换为字符串
-    std::string jsonString = jsonValue.dump();
-    std::cout << "JSON to string: " << jsonString << std::endl;
-
-    // 将字符串转换为JSON对象
-    nlohmann::json parsedJson = nlohmann::json::parse(jsonString);
-
-    // 从JSON对象中获取数据
-    std::string name = parsedJson["name"].get<std::string>();
-    // std::string name = parsedJson.value("name", "unknown");
-    int age = parsedJson["age"].get<int>();
-    // int age = parsedJson.value("age", 0);
-    std::string city = parsedJson["city"].get<std::string>();
-    // bool isStudent = parsedJson.value("is_student", false);
-
-    // 打印解析后的数据
-    std::cout << "Name: " << name << std::endl;
-    std::cout << "Age: " << age << std::endl;
-    std::cout << "City: " << city << std::endl;
-
-    return 0;
-}
+std::string jsonString = jsonValue.dump();
+std::cout << "JSON to string: " << jsonString << std::endl;
 ```
+### 2.4.2 反序列化（字符串转对象）
+
+- 使用 nlohmann::json::parse() 方法将字符串转换为 JSON 对象。
+- 通过 .get<T>() 方法或者 value() 函数提取数据。
+
+示例代码：
+```cpp
+nlohmann::json parsedJson = nlohmann::json::parse(jsonString);
+
+std::string name = parsedJson["name"].get<std::string>();
+int age = parsedJson["age"].get<int>();
+std::string city = parsedJson["city"].get<std::string>();
+```
+
 
 输出：
 ```cpp
@@ -366,5 +361,12 @@ public:
 | 静态类型支持        | 弱（类型检查靠约定）   | 强（生成强类型类）     |
 
 ---
+| 特点   | Protobuf                             | JSON                      |
+| ---- | ------------------------------------ | ------------------------- |
+| 数据定义 | 先写 `.proto` 文件定义结构，然后用 `protoc` 生成代码 | 不需要额外定义，直接构造 JSON 对象即可    |
+| 使用流程 | 需要编译 `.proto` 文件生成代码，才能在程序里构造和解析     | 直接用库提供的 API 创建和解析 JSON 数据 |
+| 数据格式 | 二进制，体积小，解析快，适合高效传输和存储                | 文本格式，人类可读，调试方便            |
+| 可维护性 | 强类型，结构固定，支持版本演进                      | 灵活但缺少严格类型，容易出现字段名错误       |
+| 适用场景 | 性能敏感、跨语言高效通信、结构化数据交换                 | 配置文件、日志、Web接口、快速开发        |
 
-
+---
