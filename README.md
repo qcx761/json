@@ -243,7 +243,7 @@ City: New York
 
 ## 3.1 数据组织示例
 
-定义 `.proto` 文件：
+定义 `person.proto` 文件：
 ```proto
 syntax = "proto3";
 message Person {
@@ -258,7 +258,13 @@ message Person {
 ```bash
 protoc Person.proto --cpp_out=./
 ```
-生成对应的 C++ 类。
+生成对应的 C++ 类
+
+| 文件名              | 作用                                                                       |
+| ---------------- | ------------------------------------------------------------------------ |
+| **person.pb.h**  | 头文件，声明了 `.proto` 文件中定义的消息（message）对应的 C++ 类和相关方法。包含类成员函数、访问器（get/set）声明。 |
+| **person.pb.cc** | 源文件，包含这些 C++ 类的具体实现，包括序列化、反序列化、拷贝、比较等逻辑。                                 |
+
 
 ## 3.2 使用场景示例
 
@@ -284,6 +290,17 @@ int main() {
     return 0;
 }
 ```
+
+```cpp
+g++ main.cpp person.pb.cc -lprotobuf -o myapp
+```
+
+输出
+```cpp
+序列化后:李四man 
+名字: 李四, 年龄: 18, 性别: man, id: 1
+```
+
 
 示例封装类：
 ```cpp
