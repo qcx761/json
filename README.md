@@ -136,7 +136,7 @@ jsonValue["name"] = "Alice";
 jsonValue["age"] = 18;
 jsonValue["city"] = "New York";
 
-// 写入器构建器
+//  jsoncpp 提供的写入器构建器
 Json::StreamWriterBuilder writer;
 //  这是一个静态函数，把 JSON 对象转换成标准字符串（`std::string`），这个字符串就是 JSON 格式的文本。
 std::string jsonString = Json::writeString(writer, jsonValue);
