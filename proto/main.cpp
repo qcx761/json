@@ -10,7 +10,6 @@ int main() {
 
     std::string output;
     p.SerializeToString(&output);
-    std::cout << "序列化后: " << output << std::endl;
 
     Person pp;
     pp.ParseFromString(output);

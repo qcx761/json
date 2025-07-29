@@ -1,5 +1,7 @@
 # 序列化技术 #
 
+在不同系统、不同平台或不同语言环境之间传输数据时，需要统一的数据格式和传输协议，确保数据能被双方正确理解和处理。
+
 ##  一、序列化和反序列化
 
 ## 1.1 什么是现序列化与反序列化
@@ -71,6 +73,7 @@
 ## 2.1 JSON
 
 - JSON（JavaScript Object Notation）起源于 JavaScript 的“关联数组”，提供一种轻量级、易于人类阅读和机器解析的数据交换格式。
+- JSON 是一种数据格式规范，数据交换格式或序列化格式。
 - **优点**：
   - 轻量简洁
     - 结构简单，格式紧凑，比 XML 更短小，节省带宽和存储空间。
@@ -115,6 +118,7 @@
   "isStudent": false
 }
 ```
+一个 JSON 文档的根节点（最外层）只能是 **对象** 或 **数组**，这意味着，根节点不能是单独的字符串、数字、布尔值或 null。
 
 ## 2.3 使用 `jsoncpp` 类库
 
@@ -132,7 +136,9 @@ jsonValue["name"] = "Alice";
 jsonValue["age"] = 18;
 jsonValue["city"] = "New York";
 
+// 写入器构建器
 Json::StreamWriterBuilder writer;
+//  这是一个静态函数，把 JSON 对象转换成标准字符串（`std::string`），这个字符串就是 JSON 格式的文本。
 std::string jsonString = Json::writeString(writer, jsonValue);
 std::cout << "JSON to string: " << jsonString << std::endl;
 ```
@@ -144,8 +150,11 @@ std::cout << "JSON to string: " << jsonString << std::endl;
 
 示例：
 ```cpp
+// 读取器构建器
 Json::CharReaderBuilder reader;
+//  `jsoncpp` 的万能 JSON 对象
 Json::Value parsedJson;
+//  将字符串包装成输入流，这样可以用流的形式逐字符读取 JSON 内容。
 std::istringstream jsonStringStream(jsonString);
 Json::parseFromStream(reader, jsonStringStream, &parsedJson, nullptr);
 
@@ -338,7 +347,7 @@ My_Protobuf proto(&info);
 // 获取编码后的字符串
 std::string encoded = proto.encodeMsg();
 
-// 假设收到 encoded 字符串
+// 收到 encoded 字符串
 std::string received_encoded = ...;
 
 // 用字符串构造 My_Protobuf 对象
@@ -365,13 +374,14 @@ delete person;  // 手动释放
 
 ## 易用性与可读性
 
-- JSON：无需定义 schema，文本可读、调试方便；
+- JSON：无需定义 schema(数据结构的定义模板)，文本可读、调试方便；
 - Protobuf：需要 `.proto` 文件编译，二进制不可读，但支持严格结构验证。
 
 ## 可演进性与兼容性
 
-- JSON：动态、松散结构，缺少版本控制机制；
-- Protobuf：支持版本演进、忽略未知字段、内置字段弃用机制。
+- JSON：动态、松散结构，JSON 是一种纯文本格式，数据以键值对形式存在，但不强制规定字段的类型、顺序和必须存在的字段。
+        缺少版本控制机制，JSON 本身没有设计专门的版本控制方案。
+- Protobuf：支持版本演进、忽略未知字段、内置字段弃用机制（允许你将某些字段标记为 `deprecated`）。
 
 ## 适用场景对比
 
