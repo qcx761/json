@@ -288,6 +288,7 @@ g++ main.cpp person.pb.cc -lprotobuf -o myapp
 封装：
 ```cpp
 class My_Protobuf {
+private:
     Person m_person;       // protobuf 生成的 Person 对象，存储消息数据
     std::string m_enstr;   // 用于存储序列化后的二进制字符串（编码后的数据）
 public:
