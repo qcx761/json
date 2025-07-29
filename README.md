@@ -68,7 +68,7 @@
 
 ##  二 JSON
 
-# 2.1 JSON
+## 2.1 JSON
 
 - JSON（JavaScript Object Notation）起源于 JavaScript 的“关联数组”，提供一种轻量级、易于人类阅读和机器解析的数据交换格式。
 - **优点**：
