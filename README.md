@@ -147,7 +147,7 @@ std::cout << "JSON to string: " << jsonString << std::endl;
 Json::CharReaderBuilder reader;
 Json::Value parsedJson;
 std::istringstream jsonStringStream(jsonString);
-Json::parseFromStream(reader, iss, &root, nullptr);
+Json::parseFromStream(reader, iss, &parsedJson, nullptr);
 
 std::string name = parsedJson["name"].asString();
 int age = parsedJson["age"].asInt();
@@ -356,6 +356,7 @@ delete person;  // 手动释放
 
 ```
 
+---
 
 # 4 JSON vs Protobuf 对比
 
