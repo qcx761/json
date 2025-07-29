@@ -322,6 +322,7 @@ public:
 
 调用：
 ```cpp
+// 结构体
 struct Info {
     int id;
     std::string name;
