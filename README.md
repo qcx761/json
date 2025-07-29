@@ -338,9 +338,6 @@ My_Protobuf proto(&info);
 // 获取编码后的字符串
 std::string encoded = proto.encodeMsg();
 
-// encoded 是 protobuf 编码后的二进制数据，可以发送或保存
-
-
 // 假设收到 encoded 字符串
 std::string received_encoded = ...;
 
