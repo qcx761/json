@@ -147,7 +147,7 @@ std::cout << "JSON to string: " << jsonString << std::endl;
 Json::CharReaderBuilder reader;
 Json::Value parsedJson;
 std::istringstream jsonStringStream(jsonString);
-Json::parseFromStream(reader, iss, &parsedJson, nullptr);
+Json::parseFromStream(reader, jsonStringStream, &parsedJson, nullptr);
 
 std::string name = parsedJson["name"].asString();
 int age = parsedJson["age"].asInt();
