@@ -9,7 +9,7 @@ int main() {
     jsonValue["city"] = "New York";
 
     // 将JSON对象转换为字符串
-    std::string jsonString = jsonValue.dump(6);
+    std::string jsonString = jsonValue.dump(0);
     std::cout << "JSON to string: " << jsonString << std::endl;
 
     // 将字符串转换为JSON对象

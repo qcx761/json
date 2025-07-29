@@ -215,7 +215,7 @@ City: New York
 
 # 三 Protobuf（Protocol Buffer）
 
-- Google 开发的跨语言结构化数据序列化标准，适用于持久化数据交换。
+- Google 开发的跨语言结构化数据序列化标准，适用于持久化数据交换，是一种高效的二进制数据格式。
 - 优点：体积小、效率高，由 `.proto` 文件定义结构、自动生成代码支持 C++, Java, C#, Python 等语言。
 - **优点**：
   - 体积小、传输快
@@ -284,6 +284,7 @@ g++ main.cpp person.pb.cc -lprotobuf -o myapp
 ```cpp
 名字: 李四, 年龄: 18, 性别: man, id: 1
 ```
+
 
 封装：
 ```cpp
