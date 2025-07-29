@@ -9,7 +9,7 @@ int main() {
     jsonValue["city"] = "New York";
 
     // 将JSON对象转换为字符串
-    std::string jsonString = jsonValue.dump();
+    std::string jsonString = jsonValue.dump(6);
     std::cout << "JSON to string: " << jsonString << std::endl;
 
     // 将字符串转换为JSON对象
@@ -29,25 +29,25 @@ int main() {
     return 0;
 }
 
-#include <nlohmann/json.hpp>
-#include <iostream>
-#include <string>
+// #include <nlohmann/json.hpp>
+// #include <iostream>
+// #include <string>
 
-int main() {
-    // 构造 JSON 数组
-    nlohmann::json arr = {"Alice", "Bob", "Charlie"};
+// int main() {
+//     // 构造 JSON 数组
+//     nlohmann::json arr = {"Alice", "Bob", "Charlie"};
 
-    // 序列化为字符串
-    std::string jsonStr = arr.dump();  // 无缩进
-    std::cout << "序列化后的 JSON 字符串:\n" << jsonStr << std::endl;
+//     // 序列化为字符串
+//     std::string jsonStr = arr.dump();  // 无缩进
+//     std::cout << "序列化后的 JSON 字符串:\n" << jsonStr << std::endl;
 
-    // 模拟传输：解析字符串回 JSON
-    nlohmann::json parsed = nlohmann::json::parse(jsonStr);
+//     // 模拟传输：解析字符串回 JSON
+//     nlohmann::json parsed = nlohmann::json::parse(jsonStr);
 
-    std::cout << "反序列化后的数组元素:\n";
-    for (const auto& item : parsed) {
-        std::cout << item << std::endl;
-    }
+//     std::cout << "反序列化后的数组元素:\n";
+//     for (const auto& item : parsed) {
+//         std::cout << item << std::endl;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }

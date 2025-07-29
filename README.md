@@ -22,7 +22,7 @@
 
 ---
 
-## 1.2 序列化与反序列化使用
+## 1.2 序列化与反序列化流程
 
 - **原始数据**：可包括基础数据类型和复合数据类型。
 - **流程**：
@@ -64,8 +64,8 @@
 | XML         | 文本  | 中   | 大  | 慢    | 广泛   |
 | Protobuf    | 二进制 | 低   | 小  | 快    | 广泛   |
 
-
 ---
+
 ##  二 JSON
 
 # 2.1 JSON
@@ -94,14 +94,14 @@
 - **布尔值**：即 true 或 false
 - **空值**：表示空数据，即 null
 - **数组**：类似于 C++ 数组，但元素类型可混合。支持如下类型：
-  - `int`, `double`, `float`, `bool`, `string`, `char*`, 嵌套 JSON 数组/对象  
+  - `int`, `double`, `float`, `bool`, `string`, `char*`, 嵌套 JSON 数组/对象
 ```cpp
 [
   42,
   "hello",
   true,
   null,
-  {"id": 1, "name": "Alice"},
+  {"i": 1, "name": "Alice"},
   [1, 2, 3]
 ]
 ```
@@ -137,7 +137,7 @@ std::string jsonString = Json::writeString(writer, jsonValue);
 std::cout << "JSON to string: " << jsonString << std::endl;
 ```
 
-### 2.3.1 反序列化（字符串转对象）
+### 2.3.2 反序列化（字符串转对象）
 
 - 使用 Json::CharReaderBuilder 创建 Reader，将 JSON 字符串解析成 Json::Value 对象。
 - 支持 .asString()、.asInt() 等方法获取具体数据。
@@ -197,10 +197,10 @@ nlohmann::json parsedJson = nlohmann::json::parse(jsonString);
 std::string name = parsedJson["name"].get<std::string>();
 int age = parsedJson["age"].get<int>();
 std::string city = parsedJson["city"].get<std::string>();
-// std::string name = parsedJson.value("name", "abc");
-// int age = parsedJson.value("age", 0);
-// std::string city = parsedJson.value("city", "123");
 
+std::string name = parsedJson.value("name", "abc");
+int age = parsedJson.value("age", 0);
+std::string city = parsedJson.value("city", "123");
 ```
 
 输出：
@@ -212,7 +212,6 @@ City: New York
 ```
 
 ---
-
 
 # 三 Protobuf（Protocol Buffer）
 
@@ -268,7 +267,6 @@ int main() {
 
     std::string output;
     p.SerializeToString(&output);
-    std::cout << "序列化后: " << output << std::endl;
 
     Person pp;
     pp.ParseFromString(output);
@@ -282,38 +280,9 @@ int main() {
 g++ main.cpp person.pb.cc -lprotobuf -o myapp
 ```
 
-示例封装类：
+输出：
 ```cpp
-class My_Protobuf {
-    Person m_person;       // protobuf 生成的 Person 对象，存储消息数据
-    std::string m_enstr;   // 用于存储序列化后的二进制字符串（编码后的数据）
-public:
-    // 构造函数1：用 Info 结构体指针初始化 m_person 对象
-    My_Protobuf(const Info* info) {
-        m_person.set_id(info->id);
-        m_person.set_name(info->name);
-        m_person.set_sex(info->sex);
-        m_person.set_age(info->age);
-    }
-
-    // 构造函数2：用已经序列化好的字符串初始化 m_enstr
-    My_Protobuf(const std::string& str) : m_enstr(str) {}
-
-    // 将 m_person 序列化为字符串
-    std::string encodeMsg() {
-        std::string out;
-        m_person.SerializeToString(&out);  // protobuf自带方法，将对象编码成二进制字符串
-        return out;
-    }
-
-    // 将 m_enstr 反序列化成 Person 对象，返回指针
-    Person* decodeMsg() {
-        Person* p = new Person();
-        p->ParseFromString(m_enstr);  // protobuf自带方法，将字符串解码成Person对象
-        return p;
-    }
-};
-
+名字: 李四, 年龄: 18, 性别: man, id: 1
 ```
 
 ## 3.3 编码原理简述
