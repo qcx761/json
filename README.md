@@ -285,6 +285,75 @@ g++ main.cpp person.pb.cc -lprotobuf -o myapp
 名字: 李四, 年龄: 18, 性别: man, id: 1
 ```
 
+封装：
+```cpp
+class My_Protobuf {
+    Person m_person;       // protobuf 生成的 Person 对象，存储消息数据
+    std::string m_enstr;   // 用于存储序列化后的二进制字符串（编码后的数据）
+public:
+    // 构造函数1：用 Info 结构体指针初始化 m_person 对象
+    My_Protobuf(const Info* info) {
+        m_person.set_id(info->id);
+        m_person.set_name(info->name);
+        m_person.set_sex(info->sex);
+        m_person.set_age(info->age);
+    }
+
+    // 构造函数2：用已经序列化好的字符串初始化 m_enstr
+    My_Protobuf(const std::string& str) : m_enstr(str) {}
+
+    // 将 m_person 序列化为字符串
+    std::string encodeMsg() {
+        std::string out;
+        m_person.SerializeToString(&out);  // protobuf自带方法，将对象编码成二进制字符串
+        return out;
+    }
+
+    // 将 m_enstr 反序列化成 Person 对象，返回指针
+    Person* decodeMsg() {
+        Person* p = new Person();
+        p->ParseFromString(m_enstr);  // protobuf自带方法，将字符串解码成Person对象
+        return p;
+    }
+};
+```
+
+调用：
+```cpp
+struct Info {
+    int id;
+    std::string name;
+    std::string sex;
+    int age;
+};
+
+Info info = {1, "Alice", "Female", 30};
+
+// 创建 My_Protobuf 对象
+My_Protobuf proto(&info);
+
+// 获取编码后的字符串
+std::string encoded = proto.encodeMsg();
+
+// encoded 是 protobuf 编码后的二进制数据，可以发送或保存
+
+
+// 假设收到 encoded 字符串
+std::string received_encoded = ...;
+
+// 用字符串构造 My_Protobuf 对象
+My_Protobuf proto(received_encoded);
+
+// 解码成 Person 对象
+Person* person = proto.decodeMsg();
+
+std::cout << "ID: " << person->id() << "\n";
+std::cout << "Name: " << person->name() << "\n";
+
+delete person;  // 手动释放
+
+```
+
 ## 3.3 编码原理简述
 
 - **Varints 编码**：可变长度整型，优点是数字越小占字节越少，最高位作标志位。
